@@ -32,6 +32,7 @@ set(THIRD_PARTY_PATH "${CMAKE_BINARY_DIR}/third_party" CACHE STRING
 ################################ Configurations #######################################
 option(WITH_DOC         "Compile VisualDL with documentation"       OFF)
 option(WITH_TESTING     "Compile VisualDL with unit testing"        ON)
+option(WITH_PYTHON      "Compile VisualDL with Python"              ON)
 option(WITH_PYTHON3     "Compile VisualDL with Python 3"            OFF)
 option(WITH_JULIA       "Compile VisualDL with Julia"               OFF)
 option(ON_RELEASE       "RELEASE mode" ON)
@@ -44,9 +45,12 @@ if (NOT ON_RELEASE)
 endif(NOT ON_RELEASE)
 include(external/gtest)     # download, build, install gtest
 include(external/eigen)     # download eigen
-include(external/pybind11)  # download pybind11
 include(external/protobuf)  # download, build, install protobuf
-include(external/python)    # find python and set path
+
+if(WITH_PYTHON OR WITH_PYTHON3)
+  include(external/pybind11)  # download pybind11
+  include(external/python)    # find python and set path
+endif()
 
 
 if (NOT ON_RELEASE)
@@ -63,11 +67,14 @@ include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/visualdl/storage)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/visualdl/logic)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/visualdl/python)
+
+if(WITH_PYTHON OR WITH_PYTHON3)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/visualdl/logic)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/visualdl/python)
+endif()
 
 if(WITH_JULIA)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/visualdl/julia)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/visualdl/julia)
 endif()
 
 # compile test only in release mode
